@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Couleurs principales avec une palette moderne */
+  --primary-50: #eef2ff;
+  --primary-100: #e0e7ff;
+  --primary-200: #c7d2fe;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
+
+  /* Couleurs d'accent futuristes */
+  --accent-500: #06b6d4;
+  --accent-600: #0891b2;
+  --accent-700: #0e7490;
+
+  /* Couleurs neutres raffinées */
+  --neutral-50: #fafafa;
+  --neutral-100: #f4f4f5;
+  --neutral-200: #e4e4e7;
+  --neutral-300: #d4d4d8;
+  --neutral-600: #52525b;
+  --neutral-700: #3f3f46;
+  --neutral-800: #27272a;
+  --neutral-900: #18181b;
+
+  /* Variables d'interface */
+  --max-width: 1400px;
+  --border-radius: 1rem;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.15);
+}
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-indigo-50 via-white to-cyan-50 min-h-screen;
+  }
+
+  /* Typographie moderne */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-600;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-cyan-500;
+  }
+
+  /* Animations globales */
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 15s ease infinite;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+/* Animations sophistiquées */
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 15s ease infinite;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px -10px rgba(99, 102, 241, 0.5);
+    }
+    to {
+      box-shadow: 0 0 30px -5px rgba(99, 102, 241, 0.8);
+    }
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+/* Composants stylisés */
+@layer components {
+  .card {
+    @apply bg-white/80 rounded-3xl shadow-lg backdrop-blur-lg border border-white/20 
+           transition-all duration-300 hover:shadow-xl hover:scale-[1.02];
+  }
+
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-xl rounded-3xl border border-white/30
+           shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]
+           hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]
+           transition-all duration-300;
+  }
+
+  .btn {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300
+           focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:-translate-y-0.5;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-indigo-600 to-cyan-600
+           text-white hover:from-indigo-700 hover:to-cyan-700
+           shadow-lg hover:shadow-xl focus:ring-indigo-500;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200
+           focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+           transition-all duration-200 bg-white/50 backdrop-blur-sm;
+  }
+}
+
+/* Effets de glassmorphisme avancés */
+.glass {
+  @apply bg-white/30 backdrop-blur-xl border border-white/30
+         shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]
+         hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.1)]
+         transition-all duration-300;
+}
+
+/* Effets de hover élégants */
+.hover-lift {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+}
+
+/* Mode sombre sophistiqué */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900;
+    color: var(--foreground);
+  }
+
+  .card, .glass-card {
+    @apply bg-gray-800/50 border-gray-700/30;
+  }
+
+  .glass {
+    @apply bg-gray-800/30 border-gray-700/30;
+  }
+
+  .btn-primary {
+    @apply from-indigo-500 to-cyan-500
+           hover:from-indigo-600 hover:to-cyan-600;
+  }
+}
