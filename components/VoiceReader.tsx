@@ -8,7 +8,7 @@ interface VoiceReaderProps {
 }
 
 export default function VoiceReader({ text }: VoiceReaderProps) {
-  const { t, currentLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
@@ -80,7 +80,7 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
         setVoices(processedVoices);
         
         // Sélectionner la meilleure voix pour la langue courante
-        const bestVoice = findBestVoiceForLanguage(processedVoices, currentLanguage);
+        const bestVoice = findBestVoiceForLanguage(processedVoices, language);
         if (bestVoice) {
           console.log(`Sélection de la voix: ${bestVoice.name} (${bestVoice.lang})`);
           setSelectedVoice(bestVoice);
@@ -105,7 +105,7 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [currentLanguage, isSpeechSynthesisSupported]);
+  }, [language, isSpeechSynthesisSupported]);
 
   const speak = (text: string, voice: SpeechSynthesisVoice) => {
     return new Promise((resolve, reject) => {
