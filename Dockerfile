@@ -1,20 +1,14 @@
-# Utiliser l'image officielle de Node.js pour la version 14 (ou une autre que vous préférez)
-FROM node:18
-
-# Créer et définir le répertoire de travail
+# Étape 1 : build de l'app
+FROM node:18 AS builder
 WORKDIR /app
-
-# Copier les fichiers package.json et yarn.lock (si vous utilisez Yarn)
 COPY package*.json ./
-
-# Installer les dépendances de l'application
-RUN npm install || yarn install
-
-# Copier le reste du code de l'application
+RUN npm install
 COPY . .
+RUN npm run build
 
-# Exposer le port sur lequel Next.js écoute (par défaut, c'est 3000)
+# Étape 2 : exécution en production
+FROM node:18
+WORKDIR /app
+COPY --from=builder /app ./
 EXPOSE 3000
-
-# Commande pour démarrer l'application
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
