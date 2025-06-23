@@ -4,12 +4,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from './translations';
 
 type Language = 'fr' | 'en';
-type TranslationKey = keyof typeof translations.fr;
+type Translations = typeof translations;
+type Section = keyof Translations['fr'];
+type Key<S extends Section> = keyof Translations['fr'][S];
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (section: string, key: string) => string;
+  t: <S extends Section, K extends Key<S>>(section: S, key: K) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -33,12 +35,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, [language]);
 
-  const t = (section: string, key: string): string => {
+  const t = <S extends Section, K extends Key<S>>(section: S, key: K): string => {
     try {
-      return translations[language][section][key];
+      return translations[language][section][key] as string;
     } catch (error) {
-      console.error(`Translation missing: ${section}.${key}`);
-      return `${section}.${key}`;
+      console.error(`Traduction manquante : ${section}.${String(key)}`);
+      return `${section}.${String(key)}`;
     }
   };
 
