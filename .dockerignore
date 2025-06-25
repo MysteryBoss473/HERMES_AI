@@ -1,0 +1,27 @@
+# Dépendances locales
+node_modules
+
+# Fichiers de log
+npm-debug.log
+yarn-debug.log
+pnpm-debug.log
+
+# Variables d'environnement et secrets
+.env
+.env.*  
+
+# Git et fichiers de versioning
+.git
+.gitignore
+
+# Fichiers inutiles pour Docker
+Dockerfile
+.dockerignore
+
+# Fichiers système / IDE
+.DS_Store
+.vscode
+.idea
+
+# Autres fichiers temporaires
+*.log
