@@ -17,7 +17,7 @@ WORKDIR /app
 
 COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev
-
+ENV NEXT_PUBLIC_GEMINI_API_KEY=""
 COPY --from=builder /app ./
 
 # Port attendu par Render (par défaut : 3000)
