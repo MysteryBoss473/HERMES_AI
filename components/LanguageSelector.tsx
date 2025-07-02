@@ -6,19 +6,21 @@ export default function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="language-selector">
+    <div className="language-selector-container">
       <button
-        className={`language-button ${language === 'fr' ? 'active' : ''}`}
+        className={`language-toggle-btn ${language === 'fr' ? 'active' : ''}`}
         onClick={() => setLanguage('fr')}
+        aria-pressed={language === 'fr'}
       >
         FR
       </button>
       <button
-        className={`language-button ${language === 'en' ? 'active' : ''}`}
+        className={`language-toggle-btn ${language === 'en' ? 'active' : ''}`}
         onClick={() => setLanguage('en')}
+        aria-pressed={language === 'en'}
       >
         EN
       </button>
     </div>
   );
-} 
+}

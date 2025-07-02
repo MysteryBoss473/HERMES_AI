@@ -78,6 +78,7 @@ export default function RootLayout({
                   </div>
                   <span className="logo-text">HERMES_AI</span>
                 </a>
+                <LanguageSelector/>
               </div>
             </nav>
 

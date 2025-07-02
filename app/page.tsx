@@ -9,11 +9,14 @@ import { extractTextFromPDF } from '@/lib/pdfUtils'
 import { getScientificSummary } from '@/lib/gemini'
 import { motion } from 'framer-motion'
 import '@/app/styles/pages/home.css'
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function Home() {
   const [summary, setSummary] = useState('')
   const [loading, setLoading] = useState(false)
   const [apiKeyStatus, setApiKeyStatus] = useState<string>('')
+  const { t } = useLanguage();
+
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -120,7 +123,7 @@ export default function Home() {
           <h1 className="hero-title">
             <span className="hero-title-gradient">HERMES_AI</span>
             <span className="block text-3xl md:text-4xl mt-4 font-medium text-neutral-800 dark:text-neutral-200">
-              Assistant de Résumé Scientifique
+              {t('header', 'title')}
             </span>
           </h1>
         </motion.div>
@@ -129,7 +132,7 @@ export default function Home() {
           variants={itemVariants}
           className="hero-description"
         >
-          Transformez vos articles scientifiques en résumés structurés et accessibles grâce à notre intelligence artificielle de pointe.
+          {t('header', 'desc')}
         </motion.p>
 
         <motion.div
@@ -195,8 +198,8 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             ),
-            title: "Rapide et Efficace",
-            description: "Obtenez des résumés pertinents en quelques secondes grâce à notre IA avancée."
+            title: t('icon1', 'title'),
+            description: t('icon1', 'desc')
           },
           {
             icon: (
@@ -204,8 +207,8 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             ),
-            title: "Haute Précision",
-            description: "Des résumés fidèles qui capturent l'essence de vos articles scientifiques."
+            title: t('icon2', 'title'),
+            description: t('icon2', 'desc')
           },
           {
             icon: (
@@ -213,8 +216,8 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
               </svg>
             ),
-            title: "Format Structuré",
-            description: "Des résumés bien organisés pour une lecture et une compréhension optimales."
+            title: t('icon3', 'title'),
+            description: t('icon3', 'desc')
           }
         ].map((feature, index) => (
           <motion.div

@@ -6,6 +6,7 @@ import VoiceReader from './VoiceReader'
 import '@/app/styles/components/SummaryResult.css'
 import '@/app/styles/animations.css'
 import '@/app/styles/components/VoiceReader.css'
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface SummaryResultProps {
   summary: string
@@ -15,6 +16,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
   const [copied, setCopied] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [showShareOptions, setShowShareOptions] = useState(false)
+  const { t } = useLanguage();
 
   // Handlers for copy, PDF generation, and sharing
   const handleCopy = async () => {
@@ -198,7 +200,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
     // Si aucune section n'a été trouvée, créer une section par défaut
     if (sections.length === 0 && text.trim()) {
       sections.push({
-        title: 'Résumé',
+        title: t('others', 'res3'),
         content: text.trim()
       })
     }
@@ -219,8 +221,8 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
             </svg>
           </div>
           <div className="header-text">
-            <h2 className="text-gradient">Résumé Scientifique</h2>
-            <p>Généré avec précision par IA</p>
+            <h2 className="text-gradient">{t('others', 'res1')}</h2>
+            <p>{t('others', 'res2')}</p>
           </div>
           <div className="header-status">
           </div>
@@ -232,7 +234,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
           <button
             onClick={handleCopy}
             className="action-button"
-            title="Copier le résumé"
+            title={t('others', 'copy')}
           >
             {copied ? (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +251,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
             onClick={generatePDF}
             className="action-button"
             disabled={generating}
-            title="Télécharger en PDF"
+            title={t('others', 'download')}
           >
             {generating ? (
               <svg className="animate-spin w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +268,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
             <button
               onClick={() => setShowShareOptions(!showShareOptions)}
               className="action-button"
-              title="Partager"
+              title={t('others', 'share')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -282,7 +284,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
                   Email
                 </button>
                 <button onClick={() => handleShare('copy')} className="share-option">
-                  Copier le lien
+                  {t('others', 'copylink')}
                 </button>
               </div>
             )}
