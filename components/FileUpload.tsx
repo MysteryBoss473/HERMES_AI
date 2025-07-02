@@ -12,10 +12,66 @@ interface FileUploadProps {
 }
 
 export interface AnalysisConfig {
+  language: string,
   languageLevel: 'simple' | 'standard' | 'technique'
   summaryLength: 'court' | 'moyen' | 'detaille'
   maxWords?: number
 }
+
+export const languageOptions = [
+  { label: "Afrikaans", code: "af" },
+  { label: "አማርኛ", code: "am" },
+  { label: "Azərbaycan dili", code: "az" },
+  { label: "বাংলা", code: "bn" },
+  { label: "Català", code: "ca" },
+  { label: "Čeština", code: "cs" },
+  { label: "Dansk", code: "da" },
+  { label: "Nederlands", code: "nl" },
+  { label: "English", code: "en" },
+  { label: "Español", code: "es" },
+  { label: "Euskara", code: "eu" },
+  { label: "Filipino", code: "fil" },
+  { label: "Français", code: "fr" },
+  { label: "Galego", code: "gl" },
+  { label: "ગુજરાતી", code: "gu" },
+  { label: "Hrvatski", code: "hr" },
+  { label: "IsiZulu", code: "zu" },
+  { label: "Íslenska", code: "is" },
+  { label: "Italiano", code: "it" },
+  { label: "ಕನ್ನಡ", code: "kn" },
+  { label: "ខ្មែរ", code: "km" },
+  { label: "Latviešu", code: "lv" },
+  { label: "Lietuvių", code: "lt" },
+  { label: "മലയാളം", code: "ml" },
+  { label: "मराठी", code: "mr" },
+  { label: "Magyar", code: "hu" },
+  { label: "ລາວ", code: "lo" },
+  { label: "नेपाली", code: "ne" },
+  { label: "Norsk", code: "no" },
+  { label: "Polski", code: "pl" },
+  { label: "Português", code: "pt" },
+  { label: "Română", code: "ro" },
+  { label: "සිංහල", code: "si" },
+  { label: "Slovenčina", code: "sk" },
+  { label: "Slovenščina", code: "sl" },
+  { label: "Suomi", code: "fi" },
+  { label: "Kiswahili", code: "sw" },
+  { label: "Svenska", code: "sv" },
+  { label: "Ελληνικά", code: "el" },
+  { label: "हिन्दी", code: "hi" },
+  { label: "日本語", code: "ja" },
+  { label: "한국어", code: "ko" },
+  { label: "ไทย", code: "th" },
+  { label: "Türkçe", code: "tr" },
+  { label: "தமிழ்", code: "ta" },
+  { label: "తెలుగు", code: "te" },
+  { label: "Tiếng Việt", code: "vi" },
+  { label: "Українська", code: "uk" },
+  { label: "اردو", code: "ur" },
+  { label: "中文", code: "zh" },
+  { label: "廣東話", code: "yue" },
+  { label: "普通话", code: "cmn" }
+]
 
 export default function FileUpload({ onFileSelect }: FileUploadProps) {
   const { t } = useLanguage();
@@ -27,6 +83,7 @@ export default function FileUpload({ onFileSelect }: FileUploadProps) {
   
   // Configuration par défaut
   const [config, setConfig] = useState<AnalysisConfig>({
+    language: t('others', 'lang'),
     languageLevel: 'standard',
     summaryLength: 'moyen'
   })
@@ -150,6 +207,21 @@ export default function FileUpload({ onFileSelect }: FileUploadProps) {
             <div className="config-section">
               <h3 className="config-title">{t('fileUpload', 'config')}</h3>
               
+              <div className="config-option">
+                <label>{t('fileUpload', 'language')}</label>
+                <select
+                  value={config.language}
+                  onChange={(e) => setConfig((prev) => ({ ...prev, language: e.target.value }))}
+                  className="word-limit-input"
+                >
+                  {languageOptions.map(({ label, code }) => (
+                    <option key={code} value={code}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="config-option">
                 <label>{t('fileUpload', 'languageLevel')}</label>
                 <div className="radio-group">

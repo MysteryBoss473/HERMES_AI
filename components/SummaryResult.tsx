@@ -7,12 +7,14 @@ import '@/app/styles/components/SummaryResult.css'
 import '@/app/styles/animations.css'
 import '@/app/styles/components/VoiceReader.css'
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { AnalysisConfig } from '@/components/FileUpload'
 
 interface SummaryResultProps {
-  summary: string
+  summary: string;
+  config: AnalysisConfig;
 }
 
-export default function SummaryResult({ summary }: SummaryResultProps) {
+export default function SummaryResult({ summary , config }: SummaryResultProps) {
   const [copied, setCopied] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [showShareOptions, setShowShareOptions] = useState(false)
@@ -229,7 +231,7 @@ export default function SummaryResult({ summary }: SummaryResultProps) {
         </div>
         
         <div className="header-actions">
-          <VoiceReader text={summary} />
+          <VoiceReader text={summary} config={config}/>
           
           <button
             onClick={handleCopy}

@@ -10,8 +10,10 @@ import { getScientificSummary } from '@/lib/gemini'
 import { motion } from 'framer-motion'
 import '@/app/styles/pages/home.css'
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { languageOptions } from '@/components/FileUpload'
 
 export default function Home() {
+  const [currentConfig, setCurrentConfig] = useState<AnalysisConfig | null>(null)
   const [summary, setSummary] = useState('')
   const [loading, setLoading] = useState(false)
   const [apiKeyStatus, setApiKeyStatus] = useState<string>('')
@@ -44,11 +46,19 @@ export default function Home() {
     setSummary('')
 
     try {
+      
+      setCurrentConfig(config)
+
       // Extraction du texte du PDF
       const text = await extractTextFromPDF(file)
 
       // Préparation du prompt en fonction de la configuration
       let prompt = `Résume ce texte scientifique `
+
+      // Ajout de la langue
+      const languageLabel = languageOptions.find(l => l.code === config.language)?.label || config.language
+      prompt += `de sorte que tout soit traduit en ${languageLabel}, `
+
 
       // Ajout du niveau de langage
       switch (config.languageLevel) {
@@ -172,14 +182,14 @@ export default function Home() {
         )}
 
         {/* Results */}
-        {summary && (
+        {summary && currentConfig && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="results-section"
           >
-            <SummaryResult summary={summary} />
+            <SummaryResult summary={summary} config={currentConfig} />
           </motion.div>
         )}
       </motion.div>

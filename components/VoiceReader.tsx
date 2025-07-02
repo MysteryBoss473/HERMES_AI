@@ -2,13 +2,39 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { AnalysisConfig } from '@/components/FileUpload'
 
 interface VoiceReaderProps {
   text: string;
+  config: AnalysisConfig;
 }
 
-export default function VoiceReader({ text }: VoiceReaderProps) {
-  const { t, language } = useLanguage();
+// Trouve les voix correspondant le mieux à la langue cible, en privilégiant les voix locales
+function findBestVoices(voices: SpeechSynthesisVoice[], targetLang: string, maxFallbacks = 3): SpeechSynthesisVoice[] {
+  const normalizedTarget = targetLang.toLowerCase().split('-')[0];
+
+  // Chercher d'abord les voix locales correspondant à la langue
+  let filtered = voices.filter(v => v.lang.toLowerCase().startsWith(normalizedTarget) && v.localService);
+
+  // Si aucune voix locale, chercher toutes les voix correspondant à la langue
+  if (filtered.length === 0) {
+    filtered = voices.filter(v => v.lang.toLowerCase().startsWith(normalizedTarget));
+  }
+
+  // Si on a trouvé des voix correspondant à la langue, on renvoie toutes
+  if (filtered.length > 0) {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+    return filtered;
+  }
+
+  // Sinon fallback : prendre maxFallbacks voix quelconques (par exemple, les premières triées par nom)
+  const fallback = voices.slice().sort((a, b) => a.name.localeCompare(b.name)).slice(0, maxFallbacks);
+  return fallback;
+}
+
+
+export default function VoiceReader({ text, config }: VoiceReaderProps) {
+  const { t } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
@@ -16,33 +42,9 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const voicesLoadedRef = useRef(false);
 
-  // Vérifier la compatibilité du navigateur
-  const isSpeechSynthesisSupported = typeof window !== 'undefined' && 
-    'speechSynthesis' in window && 
+  const isSpeechSynthesisSupported = typeof window !== 'undefined' &&
+    'speechSynthesis' in window &&
     'SpeechSynthesisUtterance' in window;
-
-  // Fonction pour trouver la meilleure voix pour une langue donnée
-  const findBestVoiceForLanguage = (voices: SpeechSynthesisVoice[], langCode?: string) => {
-    // Utiliser 'fr' comme langue par défaut si langCode n'est pas défini
-    const defaultLang = 'fr';
-    // Convertir le code de langue en format compatible (ex: 'fr-FR' -> 'fr')
-    const targetLang = (langCode || defaultLang).toLowerCase().split('-')[0];
-    
-    // D'abord, chercher une correspondance exacte
-    let voice = voices.find(v => v.lang.toLowerCase().startsWith(targetLang) && v.localService);
-    
-    // Si pas de voix locale, chercher n'importe quelle voix correspondante
-    if (!voice) {
-      voice = voices.find(v => v.lang.toLowerCase().startsWith(targetLang));
-    }
-    
-    // Si toujours pas de voix, prendre la première disponible
-    if (!voice && voices.length > 0) {
-      voice = voices[0];
-    }
-    
-    return voice || null;
-  };
 
   useEffect(() => {
     if (!isSpeechSynthesisSupported) {
@@ -52,50 +54,29 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
     }
 
     const loadVoices = async () => {
-      // Forcer la réinitialisation du synthétiseur
       window.speechSynthesis.cancel();
 
-      // Forcer le chargement des voix
       let availableVoices = window.speechSynthesis.getVoices();
-      
+
       if (availableVoices.length === 0) {
-        // Si pas de voix, attendre un peu et réessayer
         await new Promise(resolve => setTimeout(resolve, 100));
         availableVoices = window.speechSynthesis.getVoices();
       }
 
       if (availableVoices.length > 0) {
-        // Filtrer et trier les voix
-        const processedVoices = availableVoices
-          .filter(voice => voice.lang) // Éliminer les voix sans langue
-          .sort((a, b) => {
-            // Trier d'abord par langue
-            const langCompare = a.lang.localeCompare(b.lang);
-            if (langCompare !== 0) return langCompare;
-            // Puis par nom
-            return a.name.localeCompare(b.name);
-          });
+        const filteredVoices = findBestVoices(availableVoices, config.language);
+        setVoices(filteredVoices);
 
-        console.log('Voix disponibles:', processedVoices.map(v => `${v.name} (${v.lang})`));
-        setVoices(processedVoices);
-        
-        // Sélectionner la meilleure voix pour la langue courante
-        const bestVoice = findBestVoiceForLanguage(processedVoices, language);
-        if (bestVoice) {
-          console.log(`Sélection de la voix: ${bestVoice.name} (${bestVoice.lang})`);
-          setSelectedVoice(bestVoice);
-        }
+        // Sélectionne la première voix filtrée comme voix par défaut
+        setSelectedVoice(filteredVoices[0] || null);
 
         voicesLoadedRef.current = true;
       }
-
       setIsLoading(false);
     };
 
-    // Charger les voix immédiatement et configurer l'écouteur
     loadVoices();
-    
-    // Configurer l'écouteur pour le chargement des voix
+
     window.speechSynthesis.onvoiceschanged = () => {
       if (!voicesLoadedRef.current) {
         loadVoices();
@@ -105,23 +86,21 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [language, isSpeechSynthesisSupported]);
+  }, [config.language, isSpeechSynthesisSupported]);
 
   const speak = (text: string, voice: SpeechSynthesisVoice) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       try {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.voice = voice;
+        utterance.lang = voice.lang;
         utterance.rate = 1;
         utterance.pitch = 1;
         utterance.volume = 1;
 
-        // Forcer la langue de la voix
-        utterance.lang = voice.lang;
-
         utterance.onend = () => {
           setIsPlaying(false);
-          resolve(true);
+          resolve();
         };
 
         utterance.onerror = (event) => {
@@ -130,10 +109,8 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
           reject(event);
         };
 
-        // S'assurer que toute lecture précédente est arrêtée
         window.speechSynthesis.cancel();
-        
-        // Petit délai pour s'assurer que le synthétiseur est prêt
+
         setTimeout(() => {
           window.speechSynthesis.speak(utterance);
           utteranceRef.current = utterance;
@@ -147,12 +124,11 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
 
   const startSpeaking = async () => {
     if (!selectedVoice) return;
-    
+
     try {
       setIsPlaying(true);
       await speak(text, selectedVoice);
-    } catch (error) {
-      console.error('Erreur lors de la lecture:', error);
+    } catch {
       setIsPlaying(false);
     }
   };
@@ -163,24 +139,17 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
   };
 
   const togglePlay = () => {
-    if (isPlaying) {
-      stopSpeaking();
-    } else {
-      startSpeaking();
-    }
+    isPlaying ? stopSpeaking() : startSpeaking();
   };
 
-  // Si la synthèse vocale n'est pas supportée, ne rien afficher
-  if (!isSpeechSynthesisSupported) {
-    return null;
-  }
+  if (!isSpeechSynthesisSupported) return null;
 
   return (
     <div className="voice-reader">
       <div className="voice-controls">
         <select
           value={selectedVoice?.name || ''}
-          onChange={(e) => {
+          onChange={e => {
             const newVoice = voices.find(v => v.name === e.target.value);
             if (newVoice) {
               stopSpeaking();
@@ -222,4 +191,4 @@ export default function VoiceReader({ text }: VoiceReaderProps) {
       </div>
     </div>
   );
-} 
+}

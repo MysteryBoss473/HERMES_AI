@@ -18,7 +18,8 @@ export const translations = {
       maxWords: "Nombre maximum de mots (optionnel) :",
       analyze: "Lancer l'analyse",
       preview: "Aperçu du document",
-      config: "Configuration de l'analyse"
+      config: "Configuration de l'analyse",
+      language: "Langue"
     },
     voiceReader: {
       play: "Démarrer la lecture",
@@ -48,7 +49,8 @@ export const translations = {
       copy: "Copier le résumé",
       download: "Télécharger en PDF",
       share: "Partager",
-      copylink: "Copier le lien"
+      copylink: "Copier le lien",
+      lang: "fr"
     }
   },
   en: {
@@ -70,7 +72,8 @@ export const translations = {
       maxWords: "Maximum number of words (optional):",
       analyze: "Start analysis",
       preview: "Document preview",
-      config: "Analysis configuration"
+      config: "Analysis configuration",
+      language: "Language"
     },
     voiceReader: {
       play: "Start reading",
@@ -100,7 +103,8 @@ export const translations = {
       copy: "Copy the summary",
       download: "Download as PDF",
       share: "Share",
-      copylink: "Copy the link"
+      copylink: "Copy the link",
+      lang: "en"
     }
   }
 }; 

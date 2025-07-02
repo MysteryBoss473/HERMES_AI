@@ -268,12 +268,17 @@
   transition: all 0.3s ease;
 }
 
-.word-limit-input:hover,
+.word-limit-input:hover ,
 .word-limit-input:focus {
   background: rgba(139, 92, 246, 0.15);
   border-color: rgba(139, 92, 246, 0.4);
   outline: none;
   box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}
+
+.word-limit-input option {
+  background-color: #2b1b4d;
+  color: var(--neutral-100);
 }
 
 .word-limit-input::placeholder {
