@@ -1,22 +1,41 @@
 // lib/gemini.ts
-export async function getScientificSummary(content: string): Promise<string> {
-    try {
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
-      if (!apiKey) {
-        console.error('Clé API manquante. Valeur actuelle:', apiKey)
-        throw new Error('Clé API Gemini non configurée dans .env.local')
+export async function getScientificSummary(text: string, exigences: string): Promise<string> {
+  async function callGemini(prompt: string, temperature = 0.3): Promise<string> {
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    if (!apiKey) {
+      throw new Error('Clé API Gemini non configurée dans .env.local')
+    }
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature,
+            topP: 0.8,
+            topK: 40,
+            maxOutputTokens: 2048,
+          }
+        })
       }
-  
-      const prompt = `
-  Tu es un expert en vulgarisation scientifique et en analyse de publications académiques. Ta mission est d'analyser le document scientifique ci-dessous et de produire un résumé complet, précis et accessible.
-  
-  ## CONSIGNES GÉNÉRALES :
-  - Adopte un style académique mais accessible (niveau master/doctorat)
-  - Sois fidèle au contenu original sans interprétation personnelle
-  - Utilise des termes techniques appropriés avec des explications claires
-  - Structure ton résumé de manière logique et cohérente
-  - Limite-toi aux informations présentes dans le document
-  - N'utilise PAS d'astérisques (*) ou d'autres symboles spéciaux autour des titres de sections
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`Erreur API Gemini (${response.status}): ${errorData.error?.message || 'Erreur inconnue'}`)
+    }
+
+    const data = await response.json()
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Réponse vide'
+  }
+
+  try {
+      
+    const prompt1 = `
+  Tu es un expert en vulgarisation scientifique et en analyse de publications académiques. Ta mission est d'analyser le document scientifique ci-dessous et de produire un résumé complet, précis, accessible et fidèle.
   
   ## STRUCTURE OBLIGATOIRE :
   
@@ -57,73 +76,47 @@ export async function getScientificSummary(content: string): Promise<string> {
   - Explique en quoi elle fait avancer la connaissance
   - Évalue son impact potentiel sur le domaine
   
+  REFERENCES
+  - Identifie toutes les sources mentionnées dans le document(articles, livres, rapports, sites web, etc.).
+  - Pour chaque référence, fournis les informations complètes : noms des auteurs, année de publication, titre de l’ouvrage ou article, titre de la revue ou éditeur, volume, numéro, pages, DOI ou URL si disponibles.
+  - Classe les références par ordre alphabétique selon le nom de famille du premier auteur.
+  - Ne liste pas de sources non citées dans le document.
+  
+  ${text}
+  
+  `
+  const res1 = await callGemini(prompt1)
+
+  const prompt2 = `
+  Tu es un rédacteur scientifique expérimenté. Voici un résumé structuré d’un article scientifique :
+
+  ${res1}
+
+  ${exigences}
+  - NE CHANGE ABSOLUMENT PAS LA STRUCTURE DU RESUME 
+  - N'utilise PAS d'astérisques (*) ou d'autres symboles spéciaux autour des titres de sections
+
+  ## CONSIGNES GÉNÉRALES :
+  - Adopte un style académique mais accessible (niveau master/doctorat)
+  - Sois fidèle au contenu original sans interprétation personnelle
+  - Structure ton résumé de manière logique et cohérente
+  - Limite-toi aux informations présentes dans le document
+  
   ## CRITÈRES DE QUALITÉ :
-  - Longueur optimale : 400-600 mots
   - Phrases claires et bien construites
   - Transitions fluides entre sections
   - Équilibre entre précision technique et accessibilité
   - Aucune information non présente dans le source
   - Format des titres : texte simple sans astérisques ni autres symboles spéciaux
   
-  Voici le document à analyser :
-  
-  """${content}"""
-  
-  Produis maintenant un résumé suivant exactement cette structure et ces consignes.
   `
-  
-      console.log('Tentative d\'appel à l\'API Gemini...')
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt
-                  }
-                ]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.3,
-              topP: 0.8,
-              topK: 40,
-              maxOutputTokens: 2048,
-            }
-          })
-        }
-      )
-  
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Détails de l\'erreur API:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorData
-        })
-        throw new Error(`Erreur API Gemini (${response.status}): ${errorData.error?.message || 'Erreur inconnue'}`)
-      }
-  
-      const data = await response.json()
-      console.log('Réponse API reçue:', data)
-          
-      if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        console.error('Structure de réponse invalide:', data)
-        throw new Error('Format de réponse API invalide')
-      }
-  
-      return data.candidates[0].content.parts[0].text
-    } catch (error) {
-      console.error('Erreur détaillée:', error)
-      if (error instanceof Error) {
-        return `Une erreur est survenue : ${error.message}`
-      }
-      return 'Une erreur inconnue est survenue lors de la génération du résumé.'
+  const res2 = await callGemini(prompt2)
+  return res2
+  } catch (error) {
+    console.error('Erreur détaillée:', error)
+    if (error instanceof Error) {
+      return `Une erreur est survenue : ${error.message}`
     }
+    return 'Une erreur inconnue est survenue lors de la génération du résumé.'
   }
+}

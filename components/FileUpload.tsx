@@ -298,8 +298,8 @@ export default function FileUpload({ onFileSelect }: FileUploadProps) {
                 <label>{t('fileUpload', 'maxWords')}</label>
                 <input
                   type="number"
-                  min="100"
-                  max="2000"
+                  min="200"
+                  max="3000"
                   step="50"
                   value={config.maxWords || ''}
                   onChange={(e) => setConfig({...config, maxWords: e.target.value ? parseInt(e.target.value) : undefined})}

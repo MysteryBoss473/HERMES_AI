@@ -53,62 +53,52 @@ export default function Home() {
       const text = await extractTextFromPDF(file)
 
       // Préparation du prompt en fonction de la configuration
-      let prompt = `Résume ce texte scientifique `
+      let prompt1 = `\n\n##CONSIGNES PRIORITAIRES : `
+      let prompt2 = ``
 
       // Ajout de la langue
       const languageLabel = languageOptions.find(l => l.code === config.language)?.label || config.language
-      prompt += `de sorte que tout soit traduit en ${languageLabel}, `
+      prompt1 += `\n\n-Le résumé doit ABSOLUMENT être en ${languageLabel}, `
 
 
       // Ajout du niveau de langage
       switch (config.languageLevel) {
         case 'simple':
-          prompt += 'en utilisant un langage simple et accessible, '
+          prompt1 += '\n-Niveau de langage : Simple et accessible, '
           break
         case 'technique':
-          prompt += 'en conservant les termes techniques et le vocabulaire scientifique, '
+          prompt1 += '\n-Niveau de langage : Techniques et Scientifique, '
           break
         case 'standard':
         default:
-          prompt += 'avec un niveau de langage standard, '
+          prompt1 += '\n-Niveau de langage : Standard, '
           break
       }
 
       // Ajout de la longueur souhaitée
       switch (config.summaryLength) {
         case 'court':
-          prompt += 'de manière concise et brève. '
+          prompt1 += '\n-Longueur : Concis et bref. '
           break
         case 'detaille':
-          prompt += 'de manière détaillée et approfondie. '
+          prompt1 += '\n-Longueur : Détaillé et approfondi. '
           break
         case 'moyen':
         default:
-          prompt += 'avec une longueur modérée. '
+          prompt1 += '\n-Longueur : Modérée. '
           break
       }
 
       // Ajout de la limite de mots si spécifiée
       if (config.maxWords) {
-        prompt += `IMPORTANT: Le résumé DOIT faire EXACTEMENT ${config.maxWords} mots, pas un de plus, pas un de moins. `
-        prompt += `Si le résumé généré ne fait pas exactement ${config.maxWords} mots, ajuste-le pour qu'il fasse exactement ce nombre de mots. `
+        prompt1 += `\n-Le résumé ne doit ABSOLUMENT pas dépasser ${config.maxWords} mots.`
       }
 
       // Ajout du texte à résumer
-      prompt += `\n\nTexte à résumer:\n${text}`
+      prompt2 += `\n\nTexte à résumer:\n${text}`
 
       // Génération du résumé avec les paramètres configurés
-      let generatedSummary = await getScientificSummary(prompt)
-
-      // Vérification et ajustement du nombre de mots si nécessaire
-      if (config.maxWords) {
-        const wordCount = generatedSummary.trim().split(/\s+/).length
-        if (wordCount !== config.maxWords) {
-          // Demande un ajustement si le nombre de mots ne correspond pas
-          prompt = `Voici un résumé qui fait ${wordCount} mots. Ajuste-le pour qu'il fasse EXACTEMENT ${config.maxWords} mots, en gardant les informations les plus importantes et en maintenant la cohérence:\n\n${generatedSummary}`
-          generatedSummary = await getScientificSummary(prompt)
-        }
-      }
+      let generatedSummary = await getScientificSummary(prompt2, prompt1)
 
       setSummary(generatedSummary)
     } catch (error) {
