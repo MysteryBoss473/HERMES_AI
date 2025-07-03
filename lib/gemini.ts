@@ -94,7 +94,7 @@ export async function getScientificSummary(text: string, exigences: string): Pro
 
   ${exigences}
   - NE CHANGE ABSOLUMENT PAS LA STRUCTURE DU RESUME 
-  - N'utilise PAS d'astérisques (*) ou d'autres symboles spéciaux autour des titres de sections
+  - N'utilise ABSOLUMENT PAS d'astérisques (*) ou d'autres symboles spéciaux
 
   ## CONSIGNES GÉNÉRALES :
   - Adopte un style académique mais accessible (niveau master/doctorat)

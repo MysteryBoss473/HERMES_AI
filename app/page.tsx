@@ -81,7 +81,7 @@ export default function Home() {
           prompt1 += '\n-Longueur : Concis et bref. '
           break
         case 'detaille':
-          prompt1 += '\n-Longueur : Détaillé et approfondi. '
+          prompt1 += '\n-Longueur : Détaillé et long. '
           break
         case 'moyen':
         default:
